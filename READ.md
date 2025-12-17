@@ -1,4 +1,4 @@
-# AI Football Coach
+# ⚽ AI Football Coach
 
 An AI-powered football analytics platform that provides comprehensive match analysis from pre-match strategy to real-time tracking and post-match insights.
 
@@ -17,7 +17,7 @@ An AI-powered football analytics platform that provides comprehensive match anal
 - Preparation checklists for match readiness
 
   <img width="1695" height="736" alt="image" src="https://github.com/user-attachments/assets/66b908e2-a9c8-40c8-9eda-d40329d1d47a" />
-  <img width="993" height="1154" alt="image" src="https://github.com/user-attachments/assets/4425a597-79ca-4800-b5ed-d347fed6564c" />
+  <img width="742" height="759" alt="image" src="https://github.com/user-attachments/assets/a01328a8-7328-4775-950d-5aa8f17832af" />
 
 
 
@@ -52,9 +52,10 @@ An AI-powered football analytics platform that provides comprehensive match anal
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ai-football-coach.git
-cd ai-football-coach
-```
+
+git clone https://github.com/Sahbishal/AI-Football-Coach.git
+cd AI-Football-Coach
+
 
 2. Install Python dependencies:
 ```bash
