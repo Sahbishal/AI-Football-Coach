@@ -3,6 +3,7 @@
 An AI-powered football analytics platform that provides comprehensive match analysis from pre-match strategy to real-time tracking and post-match insights.
 
 <img width="1825" height="814" alt="image" src="https://github.com/user-attachments/assets/d9f2b477-b463-444d-b9db-9197f1bb45b7" />
+
 <img width="1565" height="736" alt="image" src="https://github.com/user-attachments/assets/31214a16-1dab-41c0-8d0f-8fd103104718" />
 
 
