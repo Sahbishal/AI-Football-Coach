@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Football Coach - Football Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .mode-card {
+            transition: all 0.3s ease;
+        }
+        .mode-card:hover {
+            transform: translateY(-5px);
+            border-color: #3b82f6;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gray: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="border-b border-gray-800 bg-gray-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="showSection('landing')">
+                    <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center animate-pulse hover:animate-bounce transition-all duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <span class="text-xl font-bold gradient-text">AI Football Coach</span>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="showSection('pre-match')" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Pre-Match</button>
+                    <button onclick="showSection('live-match')" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Live Match</button>
+                    <button onclick="showSection('post-match')" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Post-Match</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        
+        <!-- Landing Page -->
+        <div id="landing-section" class="space-y-12 py-12">
+            <div class="text-center max-w-3xl mx-auto">
+                <h1 class="text-5xl font-bold mb-6">
+                    <span class="gradient-text">AI Football Coach</span>
+                </h1>
+                <p class="text-gray-400 text-xl">
+                    From pre-match strategy to real-time tracking and post-match insights.
+                    Empower your team with AI-driven decisions.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Pre-Match Card -->
+                <div class="glass-panel p-8 rounded-2xl mode-card cursor-pointer" onclick="showSection('pre-match')">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-6 text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Pre-Match Analysis</h3>
+                    <p class="text-gray-400">Team strategy preview, tactical readiness, and formation planning.</p>
+                </div>
+
+                <!-- Live Match Card -->
+                <div class="glass-panel p-8 rounded-2xl mode-card cursor-pointer border-green-500/30" onclick="showSection('live-match')">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-6 text-green-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Live Match Analysis</h3>
+                    <p class="text-gray-400">Real-time simulation, player tracking, and live tactical alerts.</p>
+                </div>
+
+                <!-- Post-Match Card -->
+                <div class="glass-panel p-8 rounded-2xl mode-card cursor-pointer" onclick="showSection('post-match')">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-6 text-purple-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Post-Match Insights</h3>
+                    <p class="text-gray-400">Heatmaps, passing networks, xG analysis, and detailed reports.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pre-Match Section -->
+        <div id="pre-match-section" class="hidden space-y-8">
+            <div class="flex justify-between items-center">
+                <h2 class="text-3xl font-bold">Pre-Match Strategy</h2>
+                <div class="flex gap-3">
+                    <button id="analyze-btn" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg text-sm">🔍 Analyze Strategy</button>
+                    <button id="save-formation-btn" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-sm">💾 Save Formation</button>
+                </div>
+            </div>
+
+            <!-- Formation Analysis Panel -->
+            <div id="formation-analysis" class="hidden mt-8">
+                <!-- Analysis content will be populated by JavaScript -->
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Formation Board -->
+                <div class="formation-board glass-panel p-6 rounded-2xl aspect-[4/3] relative bg-green-900/20 border border-green-500/30 flex items-center justify-center">
+                    <div class="absolute inset-4 border-2 border-white/20 rounded"></div>
+                    <div class="absolute top-1/2 left-4 right-4 h-px bg-white/20"></div>
+                    <div class="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-white/20 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                    
+                    <!-- Draggable Players (Mock) -->
+                    <div class="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold text-xs cursor-move"></div>
+                    <div class="absolute top-1/2 left-1/4 transform -translate-x-1/2 w-8 h-8 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold text-xs cursor-move"></div>
+                    <div class="absolute top-1/2 right-1/4 transform -translate-x-1/2 w-8 h-8 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold text-xs cursor-move"></div>
+                    <div class="absolute bottom-1/4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center font-bold text-xs cursor-move"></div>
+                </div>
+
+                <!-- Strategy Panel -->
+                <div class="space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold mb-4">Team Tactics</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Formation</label>
+                                <select id="formation-select" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2">
+                                    <option value="">Select Formation</option>
+                                    <option value="4-3-3 Attack">4-3-3 Attack</option>
+                                    <option value="4-4-2 Flat">4-4-2 Flat</option>
+                                    <option value="3-5-2">3-5-2</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Playing Style</label>
+                                <select id="style-select" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2">
+                                    <option value="">Select Style</option>
+                                    <option value="Possession">Possession</option>
+                                    <option value="Counter Attack">Counter Attack</option>
+                                    <option value="High Press">High Press</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Match Section -->
+        <div id="live-match-section" class="hidden space-y-6">
+            <!-- Camera Start Area -->
+            <div id="camera-start-area" class="max-w-4xl mx-auto text-center py-8 space-y-8">
+                
+                    <!-- Camera Options Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- USB/Webcam Option -->
+                    <div class="glass-panel rounded-2xl p-6 transition-all hover:border-green-500/50 group cursor-pointer relative overflow-hidden" onclick="startCamera()">
+                        <div class="relative z-10 flex flex-col items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center group-hover:bg-gray-700 transition-colors">
+                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <div class="text-center">
+                                <span class="text-base font-semibold text-white">USB Camera</span>
+                                <p class="text-xs text-gray-500 mt-1">External webcam or DSLR</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Camera Option -->
+                    <div class="glass-panel rounded-2xl p-6 transition-all hover:border-purple-500/50 group relative overflow-hidden">
+                        <div class="relative z-10 flex flex-col items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center group-hover:bg-gray-700 transition-colors">
+                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <div class="w-full text-center">
+                                <span class="text-base font-semibold text-white block mb-1">Mobile Camera</span>
+                                <p class="text-xs text-gray-500 mb-2">Use IP Webcam app, start server, enter video URL</p>
+                                <div class="flex gap-1">
+                                    <input type="text" id="mobile-camera-url" placeholder="http://192.168.1.100:8080/video.mjpeg" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-purple-500">
+                                    <button onclick="startMobileCamera()" class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded text-xs font-bold">Go</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- IP Camera Option -->
+                    <div class="glass-panel rounded-2xl p-6 transition-all hover:border-blue-500/50 group relative overflow-hidden">
+                        <div class="relative z-10 flex flex-col items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center group-hover:bg-gray-700 transition-colors">
+                                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>
+                            </div>
+                            <div class="w-full text-center">
+                                <span class="text-base font-semibold text-white block mb-1">IP Camera</span>
+                                <p class="text-xs text-gray-500 mb-2">Network camera</p>
+                                <div class="flex gap-1">
+                                    <input type="text" id="ip-camera-url" placeholder="RTSP URL" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-blue-500">
+                                    <button onclick="startIPCamera()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-xs font-bold">Go</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Camera View -->
+            <div id="live-camera-view" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">Live Feed</h3>
+                    <div class="flex items-center gap-3">
+                        <button onclick="startCamera()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-sm border border-gray-700 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            Rescan
+                        </button>
+                    </div>
+                </div>
+                <div class="relative glass-panel rounded-2xl overflow-hidden aspect-video">
+                    <video id="camera-video" class="w-full h-full object-cover" autoplay playsinline></video>
+                    <canvas id="camera-overlay" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+
+                    <!-- Live Overlay Stats -->
+                    <div class="absolute top-4 left-4 bg-black/50 backdrop-blur px-3 py-1 rounded text-sm text-green-400 font-mono flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        LIVE ANALYSIS
+                    </div>
+
+                    <!-- Real-time Stats Panel -->
+                    <div class="absolute top-4 right-4 bg-black/50 backdrop-blur px-3 py-2 rounded text-xs text-white font-mono">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>Players: <span id="live-players-count" class="text-green-400">0</span></div>
+                            <div>Ball: <span id="live-ball-detected" class="text-orange-400">No</span></div>
+                            <div>FPS: <span id="live-fps" class="text-blue-400">0</span></div>
+                            <div>Status: <span id="live-status" class="text-green-400">Active</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post-Match Section -->
+        <div id="post-match-section" class="hidden space-y-8">
+            <h2 class="text-3xl font-bold">Post-Match Analysis</h2>
+
+            <!-- Upload Area -->
+            <div id="upload-area" class="max-w-2xl mx-auto text-center py-8">
+                <div class="glass-panel rounded-2xl p-8 transition-all hover:border-purple-500/50 group cursor-pointer relative overflow-hidden">
+                    <form id="upload-form" class="relative z-10">
+                        <input type="file" name="file" id="file-input" accept="video/*" class="hidden" required>
+                        <label for="file-input" class="cursor-pointer flex flex-col items-center gap-4">
+                            <div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center group-hover:bg-gray-700 transition-colors">
+                                <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            </div>
+                            <div>
+                                <span class="text-lg font-semibold text-white">Upload Match Video</span>
+                                <p class="text-sm text-gray-500 mt-1">For Detailed Insights & Replay</p>
+                            </div>
+                        </label>
+                        <button type="submit" id="analyze-btn" class="mt-6 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg shadow-purple-500/25 hidden">
+                            Analyze Video
+                        </button>
+                    </form>
+                    
+                    <!-- Loading State -->
+                    <div id="loading-state" class="absolute inset-0 bg-gray-900/90 flex flex-col items-center justify-center z-20 hidden">
+                        <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p class="text-purple-400 font-medium animate-pulse">Processing Match Data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Dashboard (Hidden initially) -->
+            <div id="analysis-dashboard" class="hidden space-y-6">
+                <!-- Video & Tactics Board -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+                    <!-- Video Player -->
+                    <div class="lg:col-span-2 glass-panel rounded-2xl overflow-hidden flex flex-col relative">
+                        <video id="result-video" class="w-full h-full object-contain bg-black" controls></video>
+                    </div>
+
+                    <!-- Tactics Board -->
+                    <div class="glass-panel rounded-2xl p-4 flex flex-col gap-4">
+                        <h2 class="font-semibold text-lg">Tactical View</h2>
+                        <div class="relative flex-grow bg-green-900/20 rounded-xl border border-green-500/30 overflow-hidden flex items-center justify-center">
+                            <!-- Pitch Markings -->
+                            <div class="absolute inset-4 border-2 border-white/20 rounded"></div>
+                            <div class="absolute top-1/2 left-4 right-4 h-px bg-white/20"></div>
+                            <div class="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-white/20 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                            <canvas id="tactics-board" class="absolute inset-0 w-full h-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Team A Report -->
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-red-500">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-2xl font-bold">Team A (Red)</h3>
+                                <p class="text-gray-400 mt-1">Suggestion: <span class="text-white font-semibold" id="report-suggestion-a">Analyzing...</span></p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-400">Possession</div>
+                                <div class="text-3xl font-bold text-red-400" id="report-poss-a">--%</div>
+                            </div>
+                        </div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between border-b border-gray-700 pb-2">
+                                <span>Touches</span>
+                                <span class="font-mono" id="report-touches-a">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team B Report -->
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-blue-500">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-2xl font-bold">Team B (Blue)</h3>
+                                <p class="text-gray-400 mt-1">Suggestion: <span class="text-white font-semibold" id="report-suggestion-b">Analyzing...</span></p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-400">Possession</div>
+                                <div class="text-3xl font-bold text-blue-400" id="report-poss-b">--%</div>
+                            </div>
+                        </div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between border-b border-gray-700 pb-2">
+                                <span>Touches</span>
+                                <span class="font-mono" id="report-touches-b">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Saved Strategies -->
+            <div id="saved-strategies-list" class="mt-6">
+                <!-- Saved strategies will be displayed here -->
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Navigation Logic
+        function showSection(sectionId) {
+            // Hide all sections
+            ['landing-section', 'pre-match-section', 'live-match-section', 'post-match-section'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+
+            // Show selected
+            document.getElementById(sectionId + '-section').classList.remove('hidden');
+
+            // Initialize pre-match if shown
+            if (sectionId === 'pre-match') {
+                initPreMatchAnalysis();
+            }
+        }
+
+        // Pre-match Analysis Logic
+        function initPreMatchAnalysis() {
+            const formationSelect = document.getElementById('formation-select');
+            const styleSelect = document.getElementById('style-select');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const saveBtn = document.getElementById('save-formation-btn');
+            const analysisPanel = document.getElementById('formation-analysis');
+            const savedStrategiesList = document.getElementById('saved-strategies-list');
+
+            // Formation analysis data
+            const formationData = {
+                '4-3-3 Attack': {
+                    strengths: ['Strong attacking presence', 'Width in attack', 'Multiple goal threats', 'Creative midfield triangle'],
+                    weaknesses: ['Vulnerable to counters', 'Defensive organization', 'Requires technical fullbacks'],
+                    positions: ['GK', 'RB', 'CB', 'CB', 'LB', 'CM', 'CM', 'CM', 'RW', 'ST', 'LW'],
+                    suggestion: 'Ideal for teams with pacey wingers and a clinical striker. Best against deep defensive blocks.'
+                },
+                '4-4-2 Flat': {
+                    strengths: ['Balanced shape', 'Defensive solidity', 'Counter-attack potential', 'Work rate balance'],
+                    weaknesses: ['Limited creativity', 'Depends on fullbacks', 'Midfield congestion'],
+                    positions: ['GK', 'RB', 'CB', 'CB', 'LB', 'RM', 'CM', 'CM', 'LM', 'ST', 'ST'],
+                    suggestion: 'Good for teams focusing on organization and transitions. Effective against possession-heavy opponents.'
+                },
+                '3-5-2': {
+                    strengths: ['Midfield dominance', 'Width from fullbacks', 'Defensive flexibility', 'Attacking options'],
+                    weaknesses: ['Vulnerable on flanks', 'Requires fit fullbacks', 'Complex shape'],
+                    positions: ['GK', 'CB', 'CB', 'CB', 'RWB', 'CM', 'CM', 'CM', 'LWB', 'ST', 'ST'],
+                    suggestion: 'Perfect for possession-based teams with technical midfielders. Excellent for controlling games.'
+                }
+            };
+
+            const styleData = {
+                'Possession': {
+                    description: 'Control the game through ball retention and patient build-up',
+                    tactics: ['Patient build-up play', 'Position rotations', 'Press after possession loss', 'Width in possession'],
+                    against: ['Deep blocks', 'Counter-attacking teams', 'Direct play']
+                },
+                'Counter Attack': {
+                    description: 'Absorb pressure and strike quickly on the break',
+                    tactics: ['Deep defensive line', 'Fast transitions', 'Pacey attackers', 'Compact shape'],
+                    against: ['Possession teams', 'Slow transitions', 'High pressing']
+                },
+                'High Press': {
+                    description: 'Win the ball back high up the pitch aggressively',
+                    tactics: ['Aggressive pressing', 'Quick recoveries', 'High energy', 'Prevent opposition build-up'],
+                    against: ['Long ball teams', 'Slow defenders', 'Turnover-prone midfield']
+                }
+            };
+
+            function generateAnalysis() {
+                const formation = formationSelect.value;
+                const style = styleSelect.value;
+
+                if (!formation || !style) {
+                    alert('Please select both formation and playing style first');
+                    return;
+                }
+
+                const formInfo = formationData[formation];
+                const styleInfo = styleData[style];
+
+                analysisPanel.innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Strategy Analysis Chart -->
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold mb-4">Strategy Analysis</h3>
+                            <canvas id="formationChart" width="400" height="200"></canvas>
+                        </div>
+
+                        <!-- Field Setup -->
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold mb-4">Field Setup</h3>
+                            <div class="relative w-full h-48 bg-green-900/20 rounded border border-green-500/30 flex items-center justify-center">
+                                <!-- Pitch markings -->
+                                <div class="absolute inset-2 border-2 border-white/20 rounded"></div>
+                                <div class="absolute top-1/2 left-2 right-2 h-px bg-white/20"></div>
+                                <div class="absolute top-1/2 left-1/2 w-12 h-12 border-2 border-white/20 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                                <!-- Positions -->
+                                ${getPositionElements(formation)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                analysisPanel.classList.remove('hidden');
+
+                // Create chart
+                const ctx = document.getElementById('formationChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Strengths', 'Weaknesses'],
+                            datasets: [{
+                                label: 'Count',
+                                data: [formInfo.strengths.length, formInfo.weaknesses.length],
+                                backgroundColor: ['#10b981', '#ef4444']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Scroll to analysis
+                analysisPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            function getCombinedStrategy(formation, style) {
+                const combinations = {
+                    '4-3-3 Attack-Possession': 'This attacking formation with possession play creates a dynamic system. Focus on maintaining possession in midfield while stretching the play with attacking fullbacks. Use the striker as a false 9 to drop deep and link play, creating triangles with the attacking midfielders.',
+                    '4-3-3 Attack-Counter Attack': 'The 4-3-3 Attack formation is perfect for counter-attacking football. Sit deep, absorb pressure, and counter with pace. The width provided by the wingers and the numbers in midfield create devastating transition opportunities.',
+                    '4-3-3 Attack-High Press': 'Combine the attacking shape with aggressive pressing. Press aggressively to win the ball high, then use the pace of your wingers to exploit the space behind the opposition defense. The midfield three provides cover for quick recoveries.',
+                    '4-4-2 Flat-Possession': 'The balanced 4-4-2 provides stability for possession play. Build patiently through the midfield four, using the flat shape to maintain balance while progressing the ball. The two strikers offer multiple options in the final third.',
+                    '4-4-2 Flat-Counter Attack': 'Perfect balance for quick transitions. The two strikers provide options for fast breaks while the midfield four can win the ball and distribute quickly. Maintain compact shape when defending.',
+                    '4-4-2 Flat-High Press': 'Use the compact shape to press as a unit, forcing turnovers in dangerous areas. The balance allows for coordinated pressing without leaving gaps. Quick transitions to attack after winning possession.',
+                    '3-5-2-Possession': 'Dominate midfield with the three central midfielders, using the wing-backs to provide width in possession. The back three provides defensive security while allowing attacking freedom. Focus on positional rotations.',
+                    '3-5-2-Counter Attack': 'The back three provides defensive security while the midfield five can break quickly on the counter. Use the wing-backs for width in transitions. Perfect for absorbing pressure and hitting on the break.',
+                    '3-5-2-High Press': 'The numerical advantage in midfield allows for intense pressing while maintaining defensive shape. The wing-backs can join attacks or drop back. Requires high fitness levels and tactical discipline.'
+                };
+                return combinations[`${formation}-${style}`] || 'This combination provides a solid foundation. Adjust based on your team\'s strengths and the opponent\'s weaknesses.';
+            }
+
+            function getTacticalRecommendations(formation, style) {
+                const recommendations = {
+                    '4-3-3 Attack-Possession': [
+                        'Position the fullbacks high to stretch the play',
+                        'Use the attacking midfielder as a link between midfield and attack',
+                        'Encourage the striker to drop deep to create overloads',
+                        'Maintain width with overlapping runs from wingers'
+                    ],
+                    '4-3-3 Attack-Counter Attack': [
+                        'Drop the midfield line deeper to compress the play',
+                        'Train quick transitions from defense to attack',
+                        'Focus on fast wingers who can exploit space',
+                        'Use the central midfielders to break lines'
+                    ],
+                    '4-3-3 Attack-High Press': [
+                        'Coordinate pressing triggers with the front three',
+                        'Train recovery runs for midfielders',
+                        'Use fullbacks to prevent wide switches',
+                        'Maintain shape when pressing to avoid counters'
+                    ],
+                    '4-4-2 Flat-Possession': [
+                        'Create passing triangles in midfield',
+                        'Use fullbacks to provide width',
+                        'Position strikers to stretch the play vertically',
+                        'Maintain balance with disciplined positioning'
+                    ],
+                    '4-4-2 Flat-Counter Attack': [
+                        'Train quick distribution from goalkeeper',
+                        'Focus on fast transitions through midfield',
+                        'Use both strikers to create overloads',
+                        'Maintain defensive shape when out of possession'
+                    ],
+                    '4-4-2 Flat-High Press': [
+                        'Coordinate pressing as a compact unit',
+                        'Use midfielders to block central passing lanes',
+                        'Prevent switches to wide areas',
+                        'Quick recovery to defensive shape'
+                    ],
+                    '3-5-2-Possession': [
+                        'Use wing-backs for width in possession',
+                        'Create numerical superiority in midfield',
+                        'Position central midfielders to control the game',
+                        'Train positional rotations'
+                    ],
+                    '3-5-2-Counter Attack': [
+                        'Use wing-backs for quick transitions',
+                        'Train fast breaks through midfield',
+                        'Maintain defensive solidity with back three',
+                        'Focus on quick distribution'
+                    ],
+                    '3-5-2-High Press': [
+                        'Use midfield advantage to press aggressively',
+                        'Coordinate wing-back movements',
+                        'Maintain defensive shape',
+                        'Train high-intensity recovery runs'
+                    ]
+                };
+                return recommendations[`${formation}-${style}`] || [
+                    'Focus on team cohesion',
+                    'Train set pieces',
+                    'Work on transitions',
+                    'Maintain tactical discipline'
+                ];
+            }
+
+            function getPreparationChecklist(formation, style) {
+                const baseItems = [
+                    'Review opponent\'s recent matches',
+                    'Analyze key player matchups',
+                    'Prepare set piece routines',
+                    'Review team fitness levels'
+                ];
+
+                const formationItems = {
+                    '4-3-3 Attack': ['Train winger positioning', 'Work on fullback overlaps', 'Practice attacking combinations'],
+                    '4-4-2 Flat': ['Focus on midfield balance', 'Train fullback positioning', 'Work on transitions'],
+                    '3-5-2': ['Train wing-back movements', 'Focus on midfield rotations', 'Work on defensive shape']
+                };
+
+                const styleItems = {
+                    'Possession': ['Train patient build-up', 'Work on positional play', 'Practice pressing after possession'],
+                    'Counter Attack': ['Train quick transitions', 'Work on defensive organization', 'Practice fast breaks'],
+                    'High Press': ['Train pressing triggers', 'Work on recovery runs', 'Practice high-intensity movements']
+                };
+
+                return [...baseItems, ...formationItems[formation], ...styleItems[style]];
+            }
+
+            function getPositionElements(formation) {
+                const positions = {
+                    '4-3-3 Attack': [
+                        { pos: 'GK', top: '85%', left: '50%' },
+                        { pos: 'RB', top: '70%', left: '80%' },
+                        { pos: 'CB', top: '75%', left: '60%' },
+                        { pos: 'CB', top: '75%', left: '40%' },
+                        { pos: 'LB', top: '70%', left: '20%' },
+                        { pos: 'CM', top: '55%', left: '70%' },
+                        { pos: 'CM', top: '55%', left: '50%' },
+                        { pos: 'CM', top: '55%', left: '30%' },
+                        { pos: 'RW', top: '35%', left: '80%' },
+                        { pos: 'ST', top: '25%', left: '50%' },
+                        { pos: 'LW', top: '35%', left: '20%' }
+                    ],
+                    '4-4-2 Flat': [
+                        { pos: 'GK', top: '85%', left: '50%' },
+                        { pos: 'RB', top: '70%', left: '80%' },
+                        { pos: 'CB', top: '75%', left: '60%' },
+                        { pos: 'CB', top: '75%', left: '40%' },
+                        { pos: 'LB', top: '70%', left: '20%' },
+                        { pos: 'RM', top: '50%', left: '80%' },
+                        { pos: 'CM', top: '55%', left: '60%' },
+                        { pos: 'CM', top: '55%', left: '40%' },
+                        { pos: 'LM', top: '50%', left: '20%' },
+                        { pos: 'ST', top: '25%', left: '60%' },
+                        { pos: 'ST', top: '25%', left: '40%' }
+                    ],
+                    '3-5-2': [
+                        { pos: 'GK', top: '85%', left: '50%' },
+                        { pos: 'CB', top: '75%', left: '60%' },
+                        { pos: 'CB', top: '75%', left: '50%' },
+                        { pos: 'CB', top: '75%', left: '40%' },
+                        { pos: 'RWB', top: '60%', left: '80%' },
+                        { pos: 'CM', top: '55%', left: '70%' },
+                        { pos: 'CM', top: '55%', left: '50%' },
+                        { pos: 'CM', top: '55%', left: '30%' },
+                        { pos: 'LWB', top: '60%', left: '20%' },
+                        { pos: 'ST', top: '25%', left: '60%' },
+                        { pos: 'ST', top: '25%', left: '40%' }
+                    ]
+                };
+                return positions[formation].map(p => `<div class="absolute w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white transform -translate-x-1/2 -translate-y-1/2" style="top: ${p.top}; left: ${p.left};">${p.pos}</div>`).join('');
+            }
+
+            function updateFormationBoard() {
+                const formation = formationSelect.value;
+                if (!formation) {
+                    // Reset to default
+                    const board = document.querySelector('.formation-board');
+                    board.innerHTML = `
+                        <div class="absolute inset-4 border-2 border-white/20 rounded"></div>
+                        <div class="absolute top-1/2 left-4 right-4 h-px bg-white/20"></div>
+                        <div class="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-white/20 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                        <!-- Draggable Players (Mock) -->
+                        <div class="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold text-xs cursor-move"></div>
+                        <div class="absolute top-1/2 left-1/4 transform -translate-x-1/2 w-8 h-8 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold text-xs cursor-move"></div>
+                        <div class="absolute top-1/2 right-1/4 transform -translate-x-1/2 w-8 h-8 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold text-xs cursor-move"></div>
+                        <div class="absolute bottom-1/4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center font-bold text-xs cursor-move"></div>
+                    `;
+                    return;
+                }
+                const board = document.querySelector('.formation-board');
+                board.innerHTML = `
+                    <div class="absolute inset-4 border-2 border-white/20 rounded"></div>
+                    <div class="absolute top-1/2 left-4 right-4 h-px bg-white/20"></div>
+                    <div class="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-white/20 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                    ${getPositionElements(formation)}
+                `;
+            }
+
+            // Set default values
+            formationSelect.value = '4-3-3 Attack';
+            styleSelect.value = 'Possession';
+            updateFormationBoard(); // Update board with default
+
+            // Event listeners
+            formationSelect.addEventListener('change', updateFormationBoard);
+            analyzeBtn.addEventListener('click', generateAnalysis);
+
+            saveBtn.addEventListener('click', () => {
+                const formation = formationSelect.value;
+                const style = styleSelect.value;
+
+                if (!formation || !style) {
+                    alert('Please select both formation and playing style first');
+                    return;
+                }
+
+                // Save to localStorage
+                const strategy = {
+                    formation: formation,
+                    style: style,
+                    timestamp: new Date().toISOString(),
+                    analysis: {
+                        combinedStrategy: getCombinedStrategy(formation, style),
+                        recommendations: getTacticalRecommendations(formation, style),
+                        checklist: getPreparationChecklist(formation, style)
+                    }
+                };
+
+                localStorage.setItem('savedStrategy', JSON.stringify(strategy));
+
+                // Update saved strategies list
+                updateSavedStrategiesList();
+
+                // Visual feedback
+                saveBtn.textContent = '✅ Strategy Saved!';
+                saveBtn.classList.add('bg-green-600', 'hover:bg-green-500');
+                setTimeout(() => {
+                    saveBtn.textContent = '💾 Save Formation';
+                    saveBtn.classList.remove('bg-green-600', 'hover:bg-green-500');
+                }, 3000);
+
+                // Generate analysis if not already shown
+                if (analysisPanel.classList.contains('hidden')) {
+                    generateAnalysis();
+                }
+            });
+
+            function updateSavedStrategiesList() {
+                const saved = localStorage.getItem('savedStrategy');
+                if (saved && savedStrategiesList) {
+                    const strategy = JSON.parse(saved);
+                    const date = new Date(strategy.timestamp).toLocaleDateString();
+                    savedStrategiesList.innerHTML = `
+                        <div class="glass-panel p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Current Saved Strategy</h4>
+                            <p class="text-sm text-gray-300">${strategy.formation} • ${strategy.style}</p>
+                            <p class="text-xs text-gray-500">Saved on ${date}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // Load saved strategy if exists
+            const saved = localStorage.getItem('savedStrategy');
+            if (saved) {
+                const strategy = JSON.parse(saved);
+                formationSelect.value = strategy.formation;
+                styleSelect.value = strategy.style;
+                updateSavedStrategiesList();
+            }
+        }
+
+        // --- Live Match Logic (Camera) ---
+        let currentStream = null;
+
+        async function startCamera() {
+            const cameraStartArea = document.getElementById('camera-start-area');
+            const liveCameraView = document.getElementById('live-camera-view');
+            const videoElement = document.getElementById('camera-video');
+
+            try {
+                // Request initial permission and get default stream
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                handleStream(stream);
+
+                cameraStartArea.classList.add('hidden');
+                liveCameraView.classList.remove('hidden');
+
+                // Start real-time analysis
+                startRealTimeAnalysis();
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+                alert("Could not access camera. Please ensure you have granted permission.");
+            }
+        }
+
+        function handleStream(stream) {
+            const videoElement = document.getElementById('camera-video');
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            currentStream = stream;
+            videoElement.srcObject = stream;
+        }
+
+
+
+        function startMobileCamera() {
+            const url = document.getElementById('mobile-camera-url').value;
+            if (!url) {
+                alert("Please enter a valid URL");
+                return;
+            }
+
+            // Stop any existing stream
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+
+            const videoElement = document.getElementById('camera-video');
+            videoElement.src = url;
+            videoElement.load();
+
+            videoElement.onloadeddata = () => {
+                videoElement.play();
+                const cameraStartArea = document.getElementById('camera-start-area');
+                const liveCameraView = document.getElementById('live-camera-view');
+
+                cameraStartArea.classList.add('hidden');
+                liveCameraView.classList.remove('hidden');
+
+                // Start real-time analysis
+                startRealTimeAnalysis();
+            };
+
+            videoElement.onerror = () => {
+                alert('Failed to load video stream. Please check the URL and ensure DroidCam is running.');
+            };
+        }
+
+        function startIPCamera() {
+            const url = document.getElementById('ip-camera-url').value;
+            if (!url) {
+                alert("Please enter a valid URL");
+                return;
+            }
+
+            // For demo purposes, we'll just alert. In a real app, this would connect to a backend proxy or use a player that supports the stream.
+            // Since browsers can't play RTSP directly, we'd usually need a backend transcoder.
+            // For now, we'll simulate it by just showing the view and alerting.
+
+            alert(`Connecting to IP Camera at: ${url}\n(Note: RTSP streams require backend transcoding. This is a UI demo.)`);
+
+            const cameraStartArea = document.getElementById('camera-start-area');
+            const liveCameraView = document.getElementById('live-camera-view');
+
+            cameraStartArea.classList.add('hidden');
+            liveCameraView.classList.remove('hidden');
+
+            // Start dummy analysis loop
+            startLiveAnalysisSimulation();
+        }
+
+        async function startRealTimeAnalysis() {
+            const canvas = document.getElementById('camera-overlay');
+            const ctx = canvas.getContext('2d');
+            const videoElement = document.getElementById('camera-video');
+
+            function resize() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // Connect to WebSocket for real-time analysis
+            const ws = new WebSocket('ws://localhost:8000/ws/analyze');
+
+            ws.onopen = function() {
+                console.log('Connected to analysis server');
+            };
+
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'detections') {
+                    drawDetections(data.detections);
+                }
+            };
+
+            function drawDetections(detections) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                detections.forEach(detection => {
+                    const [x1, y1, x2, y2] = detection.bbox;
+                    const className = detection.class;
+                    const confidence = detection.confidence;
+
+                    // Draw bounding box
+                    ctx.strokeStyle = className === 'person' ? '#4ade80' : '#f59e0b';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+
+                    // Draw label
+                    ctx.fillStyle = className === 'person' ? '#4ade80' : '#f59e0b';
+                    ctx.fillRect(x1, y1 - 20, 60, 20);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(`${className} ${(confidence * 100).toFixed(1)}%`, x1 + 2, y1 - 5);
+                });
+            }
+
+            // Send frames for analysis
+            let frameCount = 0;
+            let lastTime = Date.now();
+
+            function sendFrame() {
+                if (videoElement.videoWidth > 0 && ws.readyState === WebSocket.OPEN) {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = videoElement.videoWidth;
+                    canvas.height = videoElement.videoHeight;
+                    context.drawImage(videoElement, 0, 0);
+
+                    canvas.toBlob(blob => {
+                        const reader = new FileReader();
+                        reader.onload = function() {
+                            const base64 = reader.result.split(',')[1];
+                            ws.send(JSON.stringify({
+                                type: 'frame',
+                                data: base64
+                            }));
+
+                            // Update FPS
+                            frameCount++;
+                            const now = Date.now();
+                            if (now - lastTime >= 1000) {
+                                const fps = Math.round((frameCount * 1000) / (now - lastTime));
+                                document.getElementById('live-fps').textContent = fps;
+                                frameCount = 0;
+                                lastTime = now;
+                            }
+                        };
+                        reader.readAsDataURL(blob);
+                    }, 'image/jpeg', 0.8);
+                }
+                requestAnimationFrame(sendFrame);
+            }
+
+            sendFrame();
+        }
+
+        // --- Post Match Logic (Upload & Analysis) ---
+        const fileInput = document.getElementById('file-input');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const uploadForm = document.getElementById('upload-form');
+        const loadingState = document.getElementById('loading-state');
+        const uploadArea = document.getElementById('upload-area');
+        const analysisDashboard = document.getElementById('analysis-dashboard');
+        const resultVideo = document.getElementById('result-video');
+        const tacticsBoard = document.getElementById('tactics-board');
+        const ctx = tacticsBoard.getContext('2d');
+        
+        let matchData = null;
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                analyzeBtn.classList.remove('hidden');
+                analyzeBtn.textContent = `Analyze ${fileInput.files[0].name}`;
+            }
+        });
+
+        uploadForm.onsubmit = async (e) => {
+            e.preventDefault();
+            loadingState.classList.remove('hidden');
+            analyzeBtn.disabled = true;
+
+            const formData = new FormData(uploadForm);
+
+            try {
+                const response = await fetch('/upload', { method: 'POST', body: formData });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultVideo.src = data.video_url;
+
+                    const dataRes = await fetch(data.data_url);
+                    matchData = await dataRes.json();
+
+                    // Switch to dashboard view
+                    uploadArea.classList.add('hidden');
+                    analysisDashboard.classList.remove('hidden');
+
+                    // Populate Post-Match Report
+                    updatePostMatchReport(matchData.stats);
+
+                    initVisualization();
+                } else {
+                    alert('Error processing video');
+                    loadingState.classList.add('hidden');
+                    analyzeBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error uploading video');
+                loadingState.classList.add('hidden');
+                analyzeBtn.disabled = false;
+            }
+        };
+
+        function updatePostMatchReport(stats) {
+            if (!stats) return;
+
+            // Team A
+            document.getElementById('report-poss-a').textContent = stats.team_a.possession + '%';
+            document.getElementById('report-touches-a').textContent = stats.team_a.touches;
+            document.getElementById('report-suggestion-a').textContent = stats.team_a.suggestion;
+
+            // Team B
+            document.getElementById('report-poss-b').textContent = stats.team_b.possession + '%';
+            document.getElementById('report-touches-b').textContent = stats.team_b.touches;
+            document.getElementById('report-suggestion-b').textContent = stats.team_b.suggestion;
+        }
+
+        function initVisualization() {
+            function resizeCanvas() {
+                tacticsBoard.width = tacticsBoard.offsetWidth;
+                tacticsBoard.height = tacticsBoard.offsetHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            function draw() {
+                if (!matchData) return;
+
+                const currentTime = resultVideo.currentTime;
+                const fps = matchData.metadata.fps || 30;
+                const frameIndex = Math.floor(currentTime * fps);
+                const frameData = matchData.frames[frameIndex];
+
+                ctx.clearRect(0, 0, tacticsBoard.width, tacticsBoard.height);
+
+                if (frameData) {
+                    // Draw Objects
+                    frameData.objects.forEach(obj => {
+                        const x = (obj.bbox[0] + obj.bbox[2]) / 2;
+                        const y = (obj.bbox[1] + obj.bbox[3]) / 2;
+
+                        const canvasX = (x / matchData.metadata.width) * tacticsBoard.width;
+                        const canvasY = (y / matchData.metadata.height) * tacticsBoard.height;
+
+                        ctx.beginPath();
+                        ctx.arc(canvasX, canvasY, 6, 0, Math.PI * 2);
+
+                        if (obj.class === 32) {
+                            ctx.fillStyle = '#ffffff';
+                        } else {
+                            if (obj.team === 0) ctx.fillStyle = '#ef4444';
+                            else if (obj.team === 1) ctx.fillStyle = '#3b82f6';
+                            else ctx.fillStyle = '#9ca3af';
+                        }
+                        ctx.fill();
+                    });
+                }
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+    </script>
+</body>
+</html>
